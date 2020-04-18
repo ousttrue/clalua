@@ -1,11 +1,11 @@
 #include "ClangIndex.h"
+#include "enum_name.h"
 #include <clang-c/Index.h>
 #include <fmt/format.h>
 #include <functional>
 #include <plog/Appenders/ConsoleAppender.h>
 #include <plog/Log.h>
 #include <tcb/span.hpp>
-#include "enum_name.h"
 
 using CallbackFunc = std::function<void(const CXCursor &)>;
 
@@ -53,7 +53,7 @@ struct ClangIndexImpl {
   }
 
   bool parse(tcb::span<std::string> headers, tcb::span<std::string> includes,
-             tcb::span<std::string> defines, bool externC) {
+             tcb::span<std::string> defines) {
     std::vector<std::string> params = {
         "-x",
         "c++",
@@ -86,7 +86,9 @@ struct ClangIndexImpl {
 private:
   void ProcessChildren(const CXCursor &cursor) {
     CallbackFunc callback = [](const CXCursor &child) {
-      LOGD << (int)child.kind << " => " << enum_name_map<CXCursorKind, (int)CXCursor_OverloadCandidate>::get(child.kind);
+      LOGD << (int)child.kind << " => "
+           << enum_name_map<CXCursorKind, (int)CXCursor_OverloadCandidate>::get(
+                  child.kind);
     };
     clang_visitChildren(cursor, &visitor, &callback);
   }
@@ -126,8 +128,22 @@ ClangIndex::ClangIndex() : m_impl(new ClangIndexImpl) {}
 
 ClangIndex::~ClangIndex() { delete m_impl; }
 
+bool ClangIndex::parse(const std::string &header,
+                       const std::string &include_dir) {
+
+  std::string headers[] = {
+      header,
+  };
+  std::string include_dirs[] = {
+      include_dir,
+  };
+  std::vector<std::string> defines;
+
+  return parse(headers, include_dirs, defines);
+}
+
 bool ClangIndex::parse(tcb::span<std::string> headers,
                        tcb::span<std::string> includes,
-                       tcb::span<std::string> defines, bool externC) {
-  return m_impl->parse(headers, includes, defines, externC);
+                       tcb::span<std::string> defines) {
+  return m_impl->parse(headers, includes, defines);
 }
