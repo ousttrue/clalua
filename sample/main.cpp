@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
   plog::init(plog::verbose, &consoleAppender);
 
   ClangIndex index;
-  if (!index.parse("C:/Program Files/LLVM/include/clang-c/Index.h",
+  if (!index.Parse("C:/Program Files/LLVM/include/clang-c/Index.h",
                    "C:/Program Files/LLVM/include")) {
     return 1;
   }

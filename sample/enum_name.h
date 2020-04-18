@@ -1,5 +1,11 @@
 #pragma once
+#include <array>
 #include <string_view>
+
+
+///
+/// https://qiita.com/ta_dragon/items/1828ceb16bc8733526e1
+///
 
 template <typename E, E V> std::string_view enum_name_impl() {
   //   constexpr auto str = __FUNCSIG__;
@@ -36,9 +42,9 @@ template <typename E> struct enum_name_n<0, E> {
   }
 };
 
-template <typename E> std::string_view enum_name(E e) {
-  return enum_name_n<700, E>::get(e);
-}
+// template <typename E> std::string_view enum_name(E e) {
+//   return enum_name_n<700, E>::get(e);
+// }
 
 template <typename E, size_t MAX_VALUE> struct enum_name_map {
   std::array<std::string_view, MAX_VALUE + 1> _values;

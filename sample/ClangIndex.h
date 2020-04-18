@@ -9,9 +9,9 @@ public:
   ClangIndex();
   ~ClangIndex();
 
-  bool parse(const std::string &header, const std::string &include_dir);
+  bool Parse(const std::string &header, const std::string &include_dir);
 
-  bool parse(tcb::span<std::string> headers,
+  bool Parse(tcb::span<std::string> headers,
              tcb::span<std::string> include_dirs,
              tcb::span<std::string> defines);
 };

@@ -2,6 +2,7 @@ set(TARGET_NAME sample)
 add_executable(${TARGET_NAME}
     main.cpp
     ClangIndex.cpp
+    ClangCursorTraverser.cpp
     )
 target_include_directories(${TARGET_NAME} PRIVATE
     ${EXTERNAL_DIR}/span/include

@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "filesystem": "cpp",
+        "regex": "cpp",
+        "xlocale": "cpp",
+        "xlocmon": "cpp",
+        "format": "cpp"
+    }
+}
