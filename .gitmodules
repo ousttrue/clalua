@@ -1,0 +1,9 @@
+[submodule "_external/span"]
+	path = _external/span
+	url = https://github.com/tcbrindle/span.git
+[submodule "_external/fmt"]
+	path = _external/fmt
+	url = https://github.com/fmtlib/fmt.git
+[submodule "_external/plog"]
+	path = _external/plog
+	url = https://github.com/SergiusTheBest/plog.git
