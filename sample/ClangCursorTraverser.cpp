@@ -193,7 +193,7 @@ struct Context
 {
     const Context *parent = nullptr;
     bool isExternC = false;
-    std::string_view namespaceName;
+    std::shared_ptr<Namespace> namespaceDecl;
 
     Context createChild() const
     {
@@ -203,12 +203,12 @@ struct Context
         };
     }
 
-    Context enterNamespace(const std::string_view &view) const
+    Context enterNamespace(const std::shared_ptr<Namespace> &decl) const
     {
         return {
             .parent = this,
             .isExternC = isExternC,
-            .namespaceName = view,
+            .namespaceDecl = decl,
         };
     }
 };
@@ -512,7 +512,15 @@ class TraverserImpl
             break;
 
         case CXCursor_Namespace: {
-            auto child = context.enterNamespace(spelling.str_view());
+            auto decl = getDecl<Namespace>(cursor);
+            if (!decl)
+            {
+                auto hash = clang_hashCursor(cursor);
+                auto location = Location::get(cursor);
+                decl = Namespace::create(hash, location.path(), location.line, spelling.str_view());
+                pushDecl(cursor, decl);
+            }
+            auto child = context.enterNamespace(decl);
             TraverseChildren(cursor, child);
         }
         break;
@@ -731,7 +739,7 @@ class TraverserImpl
         // header.types ~ = decl;
 
         // fields
-        auto childContext = context.enterNamespace(name);
+        auto childContext = context.enterNamespace(decl);
         processChildren(cursor,
                         std::bind(&TraverserImpl::parseStructField, this, decl, std::placeholders::_1, childContext));
     }

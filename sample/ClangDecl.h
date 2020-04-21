@@ -130,13 +130,13 @@ struct UserDecl : public Decl
     }
 };
 
-struct Typedef: public UserDecl
+struct Typedef : public UserDecl
 {
     using UserDecl::UserDecl;
     TypeReference ref;
 
     static std::shared_ptr<Typedef> create(uint32_t hash, const std::string_view &path, const uint32_t line,
-                                                const std::string_view &name)
+                                           const std::string_view &name)
     {
         return std::make_shared<Typedef>(hash, path, line, name);
     }
@@ -182,6 +182,17 @@ struct EnumDecl : public UserDecl
     }
 };
 
+struct Namespace : public UserDecl
+{
+    using UserDecl::UserDecl;
+
+    static std::shared_ptr<Namespace> create(uint32_t hash, const std::string_view &path, const uint32_t line,
+                                            const std::string_view &name)
+    {
+        return std::make_shared<Namespace>(hash, path, line, name);
+    }
+};
+
 struct StructField
 {
     uint32_t offset;
@@ -189,9 +200,9 @@ struct StructField
     TypeReference ref;
 };
 
-struct StructDecl : public UserDecl
+struct StructDecl : public Namespace
 {
-    using UserDecl::UserDecl;
+    using Namespace::Namespace;
 
     bool isUnion = false;
     bool isForwardDecl = false;
