@@ -383,25 +383,46 @@ class TraverserImpl
             return decl;
         }
 
-        // 子カーソルから型を得る
+        if (type.kind == CXType_Elaborated)
         {
+            // tag名無し？
+            // 宣言
             std::shared_ptr<Decl> decl;
-            processChildren(cursor, [self = this, type, &decl](const CXCursor &child) {
-                // auto childKind = cast(CXCursorKind) clang_getCursorKind(child);
+            processChildren(cursor, [self = this, &decl](const CXCursor &child) {
                 switch (child.kind)
                 {
                 case CXCursor_StructDecl:
-                case CXCursor_UnionDecl:
-                case CXCursor_EnumDecl: {
-                    // 宣言
-                    // tag名無し？
-                    if (type.kind != CXType_Elaborated)
-                    {
-                        throw std::runtime_error("not elaborated");
-                    }
+                case CXCursor_UnionDecl: {
                     decl = self->getDecl<StructDecl>(child);
                     return CXChildVisit_Break;
                 }
+
+                case CXCursor_EnumDecl: {
+                    decl = self->getDecl<EnumDecl>(child);
+                    return CXChildVisit_Break;
+                }
+
+                default:
+                    break;
+                }
+                return CXChildVisit_Continue;
+            });
+            if (decl)
+            {
+                // throw std::runtime_error("no decl");
+                return decl;
+            }
+        }
+
+        // 子カーソルから型を得る
+        int count = 0;
+        {
+            std::shared_ptr<Decl> decl;
+            processChildren(cursor, [self = this, type, &count, &decl](const CXCursor &child) {
+                ++count;
+                // auto childKind = cast(CXCursorKind) clang_getCursorKind(child);
+                switch (child.kind)
+                {
 
                 case CXCursor_TypeRef: {
                     if (type.kind == CXType_Record || type.kind == CXType_Typedef || type.kind == CXType_Elaborated ||
@@ -514,20 +535,18 @@ class TraverserImpl
         break;
 
         case CXCursor_TypedefDecl:
-            // parseTypedef(cursor);
+            parseTypedef(cursor);
             break;
 
-        case CXCursor_FunctionDecl:
-            //   {
-            //     auto decl =
-            //         parseFunction(cursor, &context,
-            //         clang_getCursorResultType(cursor));
-            //     if (decl) {
-            //       auto header = getOrCreateHeader(cursor);
-            //       header.types ~ = decl;
-            //     }
-            //   }
-            break;
+        case CXCursor_FunctionDecl: {
+            auto decl = parseFunction(cursor, clang_getCursorResultType(cursor));
+            if (decl)
+            {
+                // auto header = getOrCreateHeader(cursor);
+                // header.types ~ = decl;
+            }
+        }
+        break;
 
         case CXCursor_StructDecl:
         case CXCursor_ClassDecl:
@@ -550,6 +569,25 @@ class TraverserImpl
         }
 
         return CXChildVisit_Continue;
+    }
+
+    void parseTypedef(CXCursor cursor)
+    {
+        auto hash = clang_hashCursor(cursor);
+        auto location = Location::get(cursor);
+        ScopedCXString spelling(clang_getCursorSpelling(cursor));
+        auto decl = Typedef::create(hash, location.path(), location.line, spelling.str_view());
+        pushDecl(cursor, decl);
+
+        if (spelling.str_view() == "CXGlobalOptFlags")
+        {
+            auto a = 0;
+        }
+
+        auto underlying = clang_getTypedefDeclUnderlyingType(cursor);
+        auto isConst = clang_isConstQualifiedType(underlying);
+        auto type = typeToDecl(underlying, cursor);
+        decl->ref = {type, isConst != 0};
     }
 
     void parseEnum(const CXCursor &cursor, const std::string_view &name)
@@ -621,7 +659,7 @@ class TraverserImpl
                 auto paramType = self->typeToDecl(child);
                 auto paramConst = clang_isConstQualifiedType(clang_getCursorType(child));
                 decl->params.emplace_back(FunctionParam{
-                    .name = childName.str(), .ref = {paramType, paramConst!=0}
+                    .name = childName.str(), .ref = {paramType, paramConst != 0}
                     // param.values = getDefaultValue(child);
                 });
             }
@@ -709,8 +747,8 @@ class TraverserImpl
             auto fieldDecl = typeToDecl(child);
             auto fieldType = clang_getCursorType(child);
             auto fieldConst = clang_isConstQualifiedType(fieldType);
-            structDecl->fields.emplace_back(
-                StructField{.offset = (uint32_t)fieldOffset, .name = fieldName.str(), .ref = {fieldDecl, fieldConst != 0}});
+            structDecl->fields.emplace_back(StructField{
+                .offset = (uint32_t)fieldOffset, .name = fieldName.str(), .ref = {fieldDecl, fieldConst != 0}});
             break;
         }
 

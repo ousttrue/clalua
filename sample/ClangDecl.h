@@ -130,6 +130,18 @@ struct UserDecl : public Decl
     }
 };
 
+struct Typedef: public UserDecl
+{
+    using UserDecl::UserDecl;
+    TypeReference ref;
+
+    static std::shared_ptr<Typedef> create(uint32_t hash, const std::string_view &path, const uint32_t line,
+                                                const std::string_view &name)
+    {
+        return std::make_shared<Typedef>(hash, path, line, name);
+    }
+};
+
 struct FunctionParam
 {
     std::string name;
