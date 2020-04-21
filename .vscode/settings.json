@@ -4,7 +4,16 @@
         "regex": "cpp",
         "xlocale": "cpp",
         "xlocmon": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "array": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "variant": "cpp",
+        "functional": "cpp"
     },
     "clang-format.language.cpp.style": "{BasedOnStyle: Microsoft, IndentWidth: 4}",
+    "cSpell.words": [
+        "Pointee",
+        "clalua"
+    ],
 }

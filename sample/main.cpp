@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     static plog::ConsoleAppender<plog::MyFormatter> consoleAppender;
     plog::init(plog::verbose, &consoleAppender);
 
-    ClangIndex index;
+    clalua::ClangIndex index;
     if (!index.Parse("C:/Program Files/LLVM/include/clang-c/Index.h", "C:/Program Files/LLVM/include"))
     {
         return 1;
