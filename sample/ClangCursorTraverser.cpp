@@ -414,28 +414,19 @@ class TraverserImpl
             }
         }
 
-        // 子カーソルから型を得る
-        int count = 0;
+        if (type.kind == CXType_Record || type.kind == CXType_Typedef || type.kind == CXType_Elaborated ||
+            type.kind == CXType_Enum)
         {
+            // find reference from child cursors
             std::shared_ptr<Decl> decl;
-            processChildren(cursor, [self = this, type, &count, &decl](const CXCursor &child) {
-                ++count;
-                // auto childKind = cast(CXCursorKind) clang_getCursorKind(child);
+            processChildren(cursor, [self = this, &decl](const CXCursor &child) {
                 switch (child.kind)
                 {
 
                 case CXCursor_TypeRef: {
-                    if (type.kind == CXType_Record || type.kind == CXType_Typedef || type.kind == CXType_Elaborated ||
-                        type.kind == CXType_Enum)
-                    {
-                        auto referenced = clang_getCursorReferenced(child);
-                        decl = self->getDecl<UserDecl>(referenced);
-                        return CXChildVisit_Break;
-                    }
-                    else
-                    {
-                        throw new std::runtime_error("not record or typedef");
-                    }
+                    auto referenced = clang_getCursorReferenced(child);
+                    decl = self->getDecl<UserDecl>(referenced);
+                    return CXChildVisit_Break;
                 }
 
                 default: {
@@ -445,34 +436,17 @@ class TraverserImpl
 
                 return CXChildVisit_Continue;
             });
-
-            if (!decl)
+            if (decl)
             {
-                throw std::runtime_error("no decl");
+                return decl;
             }
-
-            return decl;
         }
+
+        throw std::runtime_error("not found");
     }
 
     CXChildVisitResult traverse(const CXCursor &cursor, const Context &context)
     {
-        ScopedCXString spelling(clang_getCursorSpelling(cursor));
-
-        // auto location = Location::get(cursor);
-        // if (location.file)
-        // {
-        //     ScopedCXString fileStr(clang_getFileName(file));
-        //     LOGD << fileStr.c_str() << ":" << line << ":" << column << ' ' // << ":" << offset
-        //          << enum_name_map<CXCursorKind, (int)CXCursor_OverloadCandidate>::get(cursor.kind) << '('
-        //          << (int)cursor.kind << ')' << " \"" << spelling.c_str() << "\" ";
-        // }
-        // else
-        // {
-        //     LOGD << enum_name_map<CXCursorKind, (int)CXCursor_OverloadCandidate>::get(cursor.kind) << '('
-        //          << (int)cursor.kind << ')' << " \"" << spelling.c_str() << "\" ";
-        // }
-
         switch (cursor.kind)
         {
         case CXCursor_InclusionDirective:
@@ -488,7 +462,8 @@ class TraverserImpl
             // parseMacroDefinition(cursor);
             break;
 
-        case CXCursor_MacroExpansion:
+        case CXCursor_MacroExpansion: {
+            ScopedCXString spelling(clang_getCursorSpelling(cursor));
             if (spelling.str_view() == "DEFINE_GUID")
             {
                 //   auto tokens = getTokens(cursor);
@@ -509,7 +484,8 @@ class TraverserImpl
                 //     debug auto a = 0;
                 //   }
             }
-            break;
+        }
+        break;
 
         case CXCursor_Namespace: {
             auto decl = getDecl<Namespace>(cursor);
@@ -517,6 +493,7 @@ class TraverserImpl
             {
                 auto hash = clang_hashCursor(cursor);
                 auto location = Location::get(cursor);
+                ScopedCXString spelling(clang_getCursorSpelling(cursor));
                 decl = Namespace::create(hash, location.path(), location.line, spelling.str_view());
                 pushDecl(cursor, decl);
             }
@@ -558,15 +535,15 @@ class TraverserImpl
 
         case CXCursor_StructDecl:
         case CXCursor_ClassDecl:
-            parseStruct(cursor, context, spelling.str_view(), false);
+            parseStruct(cursor, context, false);
             break;
 
         case CXCursor_UnionDecl:
-            parseStruct(cursor, context, spelling.str_view(), true);
+            parseStruct(cursor, context, true);
             break;
 
         case CXCursor_EnumDecl:
-            parseEnum(cursor, spelling.str_view());
+            parseEnum(cursor);
             break;
 
         case CXCursor_VarDecl:
@@ -587,22 +564,18 @@ class TraverserImpl
         auto decl = Typedef::create(hash, location.path(), location.line, spelling.str_view());
         pushDecl(cursor, decl);
 
-        if (spelling.str_view() == "CXGlobalOptFlags")
-        {
-            auto a = 0;
-        }
-
         auto underlying = clang_getTypedefDeclUnderlyingType(cursor);
         auto isConst = clang_isConstQualifiedType(underlying);
         auto type = typeToDecl(underlying, cursor);
         decl->ref = {type, isConst != 0};
     }
 
-    void parseEnum(const CXCursor &cursor, const std::string_view &name)
+    void parseEnum(const CXCursor &cursor)
     {
         auto hash = clang_hashCursor(cursor);
         auto location = Location::get(cursor);
-        auto decl = EnumDecl::create(hash, location.path(), location.line, name);
+        ScopedCXString spelling(clang_getCursorSpelling(cursor));
+        auto decl = EnumDecl::create(hash, location.path(), location.line, spelling.str_view());
         processChildren(cursor, [&decl](const CXCursor &child) {
             switch (child.kind)
             {
@@ -696,7 +669,7 @@ class TraverserImpl
         return decl;
     }
 
-    void parseStruct(const CXCursor &cursor, const Context &context, const std::string_view &name, bool isUnion)
+    void parseStruct(const CXCursor &cursor, const Context &context, bool isUnion)
     {
         auto decl = getDecl<StructDecl>(cursor);
         if (!decl)
@@ -704,7 +677,8 @@ class TraverserImpl
             // first time
             auto hash = clang_hashCursor(cursor);
             auto location = Location::get(cursor);
-            decl = StructDecl::create(hash, location.path(), location.line, name);
+            ScopedCXString spelling(clang_getCursorSpelling(cursor));
+            decl = StructDecl::create(hash, location.path(), location.line, spelling.str_view());
             pushDecl(cursor, decl);
         }
 
