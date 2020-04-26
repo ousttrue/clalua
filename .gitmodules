@@ -7,3 +7,9 @@
 [submodule "_external/plog"]
 	path = _external/plog
 	url = https://github.com/SergiusTheBest/plog.git
+[submodule "_external/perilune"]
+	path = _external/perilune
+	url = https://github.com/ousttrue/perilune.git
+[submodule "_external/lua"]
+	path = _external/lua
+	url = https://github.com/lua/lua.git

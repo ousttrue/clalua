@@ -1,10 +1,15 @@
+#include "ClangIndex.h"
 #include <plog/Appenders/ConsoleAppender.h>
 #include <plog/Log.h>
-
 #include <string>
 #include <vector>
 
-#include "ClangIndex.h"
+extern "C"
+{
+#include <lauxlib.h>
+#include <lua.h>
+#include <lualib.h>
+}
 
 namespace plog
 {
@@ -26,6 +31,77 @@ class MyFormatter
 };
 } // namespace plog
 
+struct Lua
+{
+    lua_State *L;
+
+    Lua() : L(luaL_newstate())
+    {
+        luaL_requiref(L, "_G", luaopen_base, 1);
+        lua_pop(L, 1);
+    }
+
+    ~Lua()
+    {
+        lua_close(L);
+    }
+
+    void printLuaError()
+    {
+        std::cerr << lua_tostring(L, -1) << std::endl;
+    }
+
+    bool doFile(const char *file)
+    {
+        if (luaL_dofile(L, file))
+        {
+            printLuaError();
+            return false;
+        }
+        return true;
+    }
+
+    void cmdline(int argc, char **argv)
+    {
+        if (argc < 2)
+        {
+            // error
+            LOGE << "usage: clalua.exe {script.lua} [args...]";
+            return;
+        }
+
+        auto file = argv[1];
+        argv += 2;
+        argc -= 2;
+
+        // parse script
+        auto chunk = luaL_loadfile(L, file);
+        if (chunk)
+        {
+            // error
+            LOGE << lua_tostring(L, -1);
+            return;
+        }
+
+        // lua_pushcfunction(L, &traceback);
+        // auto handler = lua_gettop(L);
+
+        // push arguments
+        for (int i = 0; i < argc; ++i)
+        {
+            lua_pushstring(L, argv[i]);
+        }
+
+        // execute chunk
+        auto result = lua_pcall(L, argc, LUA_MULTRET, 0);
+        if (result)
+        {
+            LOGE << lua_tostring(L, -1);
+            return;
+        }
+    }
+};
+
 int main(int argc, char **argv)
 {
     // setup logger
@@ -37,6 +113,10 @@ int main(int argc, char **argv)
     {
         return 1;
     }
+
+    Lua lua;
+
+    lua.cmdline(argc, argv);
 
     return 0;
 }
