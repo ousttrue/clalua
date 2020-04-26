@@ -5,18 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Windows) 起動",
+            "name": "d_libclang",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/sample/sample.exe",
-            "args": [],
+            "program": "${workspaceFolder}/build/clalua/clalua.exe",
+            "args": [
+                "scripts/d_libclang.lua",
+                "C:/Program Files/LLVM/include",
+                "${workspaceFolder}/source/libclang",
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
-                {"name": "PATH", "value": "${env:PATH};C:/Program Files/LLVM/bin"}
+                {
+                    "name": "PATH",
+                    "value": "${env:PATH};C:/Program Files/LLVM/bin"
+                },
+                {
+                    "name": "LUA_PATH",
+                    "value": "${workspaceFolder}\\scripts\\?.lua"
+                }
             ],
             "externalConsole": false
         }
-
     ]
 }

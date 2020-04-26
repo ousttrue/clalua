@@ -116,6 +116,9 @@ int main(int argc, char **argv)
 
     Lua lua;
 
+	// default libraries
+	luaL_openlibs(lua.L);
+    
     lua.cmdline(argc, argv);
 
     return 0;
