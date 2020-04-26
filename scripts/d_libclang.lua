@@ -1,4 +1,6 @@
 require "predefine"
+clalua = require "clalua"
+-- print(clalua)
 local D = require "dlang"
 
 ------------------------------------------------------------------------------

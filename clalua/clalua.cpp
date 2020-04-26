@@ -1,3 +1,4 @@
+#include "clalua.h"
 #include "ClangIndex.h"
 #include <plog/Appenders/ConsoleAppender.h>
 #include <plog/Log.h>
@@ -102,6 +103,7 @@ struct Lua
     }
 };
 
+/*
 int main(int argc, char **argv)
 {
     // setup logger
@@ -116,10 +118,21 @@ int main(int argc, char **argv)
 
     Lua lua;
 
-	// default libraries
-	luaL_openlibs(lua.L);
-    
+    // default libraries
+    luaL_openlibs(lua.L);
+
     lua.cmdline(argc, argv);
 
     return 0;
+}
+*/
+
+int luaopen_clalua(lua_State *L)
+{
+    lua_newtable(L);
+
+    // lua_pushcfunction(L, example_hello);
+    // lua_setfield(L, -2, "hello");
+
+    return 1;
 }

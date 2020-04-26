@@ -123,7 +123,7 @@ function ClangParse(option)
     local defines = option.defines or {}
     local externC = option.externC or false
     local isD = option.isD or false
-    local sourceMap = parse(headers, includes, defines, externC, isD)
+    local sourceMap = clalua.parse(headers, includes, defines, externC, isD)
     if sourceMap.empty then
         return nil
     end
