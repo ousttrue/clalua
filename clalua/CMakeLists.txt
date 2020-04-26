@@ -1,4 +1,4 @@
-set(TARGET_NAME sample)
+set(TARGET_NAME clalua)
 add_executable(${TARGET_NAME}
     main.cpp
     ClangIndex.cpp
