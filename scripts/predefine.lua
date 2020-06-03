@@ -28,7 +28,10 @@ function getopt(arg)
                     opt[key] = value
                 else
                     -- push
-                    opt[key] = {lastvalue, value}
+                    opt[key] = {
+                        lastvalue,
+                        value
+                    }
                 end
             end
         else
@@ -132,7 +135,9 @@ end
 
 function startswith(src, start)
     if type(start) == "string" then
-        start = {start}
+        start = {
+            start
+        }
     end
 
     for _, s in ipairs(start) do

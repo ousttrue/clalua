@@ -109,12 +109,15 @@ int CLALUA_parse(lua_State *L)
     auto defines = perilune::LuaGetVector<std::string>(L, 3);
     auto externC = perilune::LuaGet<bool>::Get(L, 4);
 
-    // auto parser = new Parser();
-    // parser.parse(headers, includes, defines, externC);
+    clalua::ClangIndex parser;
+    if(!parser.Parse(headers, includes, defines))
+    {
+        return 0;
+    }
 
-    // // 出力する情報を整理する
-    // auto isD = lua_to!bool(L, 5);
-    // g_sourceMap = process(parser, headers, isD);
+    // 出力する情報を整理する
+    // auto isD = perilune::LuaGet<bool>::Get(L, 5);
+    // g_sourceMap = process(parser, headers, isD);   
 
     // // process で 解決済み
     // // resolveForwardDeclaration(sourceMap);
@@ -131,7 +134,8 @@ int CLALUA_parse(lua_State *L)
     // log("run script...");
     // return push(L, g_sourceMap);
 
-    return 0;
+    lua_newtable(L);
+    return 1;
 }
 
 int luaopen_clalua(lua_State *L)

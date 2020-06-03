@@ -10,4 +10,4 @@ set (CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/Release/lib)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/Release/bin)
 
 set(EXTERNAL_DIR ${CMAKE_CURRENT_LIST_DIR}/_external)
-subdirs(fmt clang lualib lua clalua)
+subdirs(fmt clang lualib lua luafilesystem clalua)
