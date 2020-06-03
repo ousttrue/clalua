@@ -8,6 +8,7 @@ target_include_directories(${TARGET_NAME} PRIVATE
     ${EXTERNAL_DIR}/span/include
     ${EXTERNAL_DIR}/plog/include
     ${EXTERNAL_DIR}/nameof/include
+    ${EXTERNAL_DIR}/perilune/include
     )
 target_compile_definitions(${TARGET_NAME} PRIVATE
     CLALUA_BUILD

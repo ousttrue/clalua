@@ -4,6 +4,7 @@
 #include <plog/Log.h>
 #include <string>
 #include <vector>
+#include <perilune/perilune.h>
 
 extern "C"
 {
@@ -16,7 +17,7 @@ namespace plog
 {
 class MyFormatter
 {
-  public:
+public:
     static util::nstring header() // This method returns a header for a new file. In our case it is empty.
     {
         return util::nstring();
@@ -84,9 +85,6 @@ struct Lua
             return;
         }
 
-        // lua_pushcfunction(L, &traceback);
-        // auto handler = lua_gettop(L);
-
         // push arguments
         for (int i = 0; i < argc; ++i)
         {
@@ -103,36 +101,58 @@ struct Lua
     }
 };
 
-/*
-int main(int argc, char **argv)
+template <typename T>
+std::vector<T> GetTable(lua_State *L, int index)
 {
-    // setup logger
-    static plog::ConsoleAppender<plog::MyFormatter> consoleAppender;
-    plog::init(plog::verbose, &consoleAppender);
-
-    clalua::ClangIndex index;
-    if (!index.Parse("C:/Program Files/LLVM/include/clang-c/Index.h", "C:/Program Files/LLVM/include"))
+    auto length = lua_rawlen(L, index);
+    std::vector<T> list;
+    for (int i = 1; i <= length; ++i)
     {
-        return 1;
+        auto value = perilune::LuaTableGet<std::string>(L, i, index);
+        list.push_back(value);
     }
+    return list;
+}
 
-    Lua lua;
+int CLALUA_parse(lua_State *L)
+{
+    // 型情報を集める
+    auto headers = GetTable<std::string>(L, 1);
+    auto includes = GetTable<std::string>(L, 2);
+    auto defines = GetTable<std::string>(L, 3);
+    auto externC = perilune::LuaGet<bool>::Get(L, 4);
+    
+    // auto parser = new Parser();
+    // parser.parse(headers, includes, defines, externC);
 
-    // default libraries
-    luaL_openlibs(lua.L);
+    // // 出力する情報を整理する
+    // auto isD = lua_to!bool(L, 5);
+    // g_sourceMap = process(parser, headers, isD);
 
-    lua.cmdline(argc, argv);
+    // // process で 解決済み
+    // // resolveForwardDeclaration(sourceMap);
+
+    // // TODO: struct tag っぽい typedef を解決する
+    // // log("resolve typedef...");
+    // // resolveStructTag(g_sourceMap);
+
+    // // TODO: primitive の名前変えを解決する
+
+    // // GC.collect();
+
+    // // array を table として push
+    // log("run script...");
+    // return push(L, g_sourceMap);
 
     return 0;
 }
-*/
 
 int luaopen_clalua(lua_State *L)
 {
     lua_newtable(L);
 
-    // lua_pushcfunction(L, example_hello);
-    // lua_setfield(L, -2, "hello");
+    lua_pushcfunction(L, CLALUA_parse);
+    lua_setfield(L, -2, "parse");
 
     return 1;
 }
