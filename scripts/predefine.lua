@@ -150,3 +150,32 @@ function startswith(src, start)
 
     return false
 end
+
+lfs = require "lfs"
+
+function getPath(str)
+    local m = str:match("(.*)[/\\]")
+    return m
+end
+function mkdirRecurse(path)
+    if lfs.attributes(path) then
+        return
+    end
+
+    local dir = getPath(path)
+    if lfs.attributes(dir) == nil then
+        mkdirRecurse(dir)
+    end
+
+    local result = lfs.mkdir(path)
+end
+
+_G['file'] = {
+    exists = function(path)
+        return lfs.attributes(path) ~= nil
+    end,
+    mkdirRecurse = mkdirRecurse,
+    rmdirRecurse = function(path)
+        return lfs.rmdir(path)
+    end
+}
