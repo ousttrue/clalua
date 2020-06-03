@@ -8,7 +8,7 @@
             "name": "d_libclang",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/lua/lua.exe",
+            "program": "${workspaceFolder}/build/Debug/bin/lua.exe",
             "args": [
                 "scripts/d_libclang.lua",
                 "C:/Program Files/LLVM/include",
@@ -27,7 +27,7 @@
                 },
                 {
                     "name": "LUA_CPATH",
-                    "value": "${workspaceFolder}\\build\\clalua\\?.dll"
+                    "value": "${workspaceFolder}\\build\\Debug\\bin\\?.dll"
                 } 
             ],
             "externalConsole": false
