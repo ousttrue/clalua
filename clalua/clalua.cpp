@@ -101,27 +101,14 @@ struct Lua
     }
 };
 
-template <typename T>
-std::vector<T> GetTable(lua_State *L, int index)
-{
-    auto length = lua_rawlen(L, index);
-    std::vector<T> list;
-    for (int i = 1; i <= length; ++i)
-    {
-        auto value = perilune::LuaTableGet<std::string>(L, i, index);
-        list.push_back(value);
-    }
-    return list;
-}
-
 int CLALUA_parse(lua_State *L)
 {
     // 型情報を集める
-    auto headers = GetTable<std::string>(L, 1);
-    auto includes = GetTable<std::string>(L, 2);
-    auto defines = GetTable<std::string>(L, 3);
+    auto headers = perilune::LuaGetVector<std::string>(L, 1);
+    auto includes = perilune::LuaGetVector<std::string>(L, 2);
+    auto defines = perilune::LuaGetVector<std::string>(L, 3);
     auto externC = perilune::LuaGet<bool>::Get(L, 4);
-    
+
     // auto parser = new Parser();
     // parser.parse(headers, includes, defines, externC);
 
