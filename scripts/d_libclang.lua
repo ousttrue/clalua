@@ -6,7 +6,9 @@ local D = require "dlang"
 ------------------------------------------------------------------------------
 -- command line
 ------------------------------------------------------------------------------
-local args = {...}
+local args = {
+    ...
+}
 print_table(args)
 
 local USAGE = "clalua.exe d_libclang.lua {lua_source_dir} {d_dst_dir}"
@@ -19,15 +21,20 @@ end
 ------------------------------------------------------------------------------
 -- libclang CIndex
 ------------------------------------------------------------------------------
-local headers = {"clang-c/Index.h", "clang-c/CXString.h"}
+local headers = {
+    "clang-c/Index.h",
+    "clang-c/CXString.h"
+}
 for i, f in ipairs(headers) do
     headers[i] = string.format("%s/%s", src, f)
 end
-local includes = {src}
-local sourceMap = ClangParse{
+local includes = {
+    src
+}
+local sourceMap = ClangParse {
     isD = true,
-    headers=headers, 
-    includes=includes,
+    headers = headers,
+    includes = includes
 }
 if sourceMap.empty then
     error("empty")

@@ -250,39 +250,39 @@ class TraverserImpl
     {
         processChildren(cursor, std::bind(&TraverserImpl::traverse, this, std::placeholders::_1, context));
     }
+    std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> m_declMap;
 
   private:
-    std::unordered_map<std::string, std::shared_ptr<Source>> m_sourceMap;
+    // std::unordered_map<std::string, std::shared_ptr<Source>> m_sourceMap;
 
-    std::shared_ptr<Source> getOrCreateSource(const CXCursor &cursor)
-    {
-        auto location = Location::get(cursor);
-        auto path = location.path();
-        auto found = m_sourceMap.find(path);
-        if (found != m_sourceMap.end())
-        {
-            return found->second;
-        }
+    // std::shared_ptr<Source> getOrCreateSource(const CXCursor &cursor)
+    // {
+    //     auto location = Location::get(cursor);
+    //     auto path = location.path();
+    //     auto found = m_sourceMap.find(path);
+    //     if (found != m_sourceMap.end())
+    //     {
+    //         return found->second;
+    //     }
 
-        auto source = std::make_shared<Source>();
-        source->path = path;
-        source->data = readAllBytes(path);
-        return source;
-    }
+    //     auto source = std::make_shared<Source>();
+    //     source->path = path;
+    //     source->data = readAllBytes(path);
+    //     return source;
+    // }
 
-    tcb::span<uint8_t> getSource(const CXCursor &cursor)
-    {
-        auto source = getOrCreateSource(cursor);
-        if (!source || source->data.empty())
-        {
-            return {};
-        }
-        auto location = Location::get(cursor);
-        auto p = source->data.data();
-        return tcb::span<uint8_t>(p + location.begin, p + location.end);
-    }
+    // tcb::span<uint8_t> getSource(const CXCursor &cursor)
+    // {
+    //     auto source = getOrCreateSource(cursor);
+    //     if (!source || source->data.empty())
+    //     {
+    //         return {};
+    //     }
+    //     auto location = Location::get(cursor);
+    //     auto p = source->data.data();
+    //     return tcb::span<uint8_t>(p + location.begin, p + location.end);
+    // }
 
-    std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> m_declMap;
     void pushDecl(const CXCursor &cursor, const std::shared_ptr<UserDecl> &decl)
     {
         m_declMap.insert(std::make_pair(decl->hash, decl));
@@ -859,10 +859,11 @@ class TraverserImpl
     }
 };
 
-void ClangCursorTraverser::Traverse(const CXCursor &cursor)
+std::unordered_map<uint32_t, std::shared_ptr<UserDecl>>  ClangCursorTraverser::Traverse(const CXCursor &cursor)
 {
     TraverserImpl impl;
     impl.TraverseChildren(cursor, {});
+    return impl.m_declMap;
 }
 
 } // namespace clalua

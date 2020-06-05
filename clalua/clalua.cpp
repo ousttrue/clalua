@@ -1,5 +1,6 @@
 #include "clalua.h"
 #include "ClangIndex.h"
+#include "ClangCursorTraverser.h"
 #include <plog/Appenders/ConsoleAppender.h>
 #include <plog/Log.h>
 #include <string>
@@ -109,31 +110,13 @@ int CLALUA_parse(lua_State *L)
     auto defines = perilune::LuaGetVector<std::string>(L, 3);
     auto externC = perilune::LuaGet<bool>::Get(L, 4);
 
-    clalua::ClangIndex parser;
-    if(!parser.Parse(headers, includes, defines))
+    auto map = clalua::Parse(headers, includes, defines);
+    if(map.empty())
     {
         return 0;
     }
 
-    // 出力する情報を整理する
-    // auto isD = perilune::LuaGet<bool>::Get(L, 5);
-    // g_sourceMap = process(parser, headers, isD);   
-
-    // // process で 解決済み
-    // // resolveForwardDeclaration(sourceMap);
-
-    // // TODO: struct tag っぽい typedef を解決する
-    // // log("resolve typedef...");
-    // // resolveStructTag(g_sourceMap);
-
-    // // TODO: primitive の名前変えを解決する
-
-    // // GC.collect();
-
-    // // array を table として push
-    // log("run script...");
-    // return push(L, g_sourceMap);
-
+    //
     lua_newtable(L);
     return 1;
 }

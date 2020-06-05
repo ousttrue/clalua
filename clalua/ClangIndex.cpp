@@ -60,7 +60,7 @@ struct ClangIndexImpl
         return clang_getTranslationUnitCursor(m_tu);
     }
 
-  private:
+private:
     bool getTU(tcb::span<std::string> headers, tcb::span<std::string> params)
     {
         std::vector<const char *> c_params;
@@ -69,9 +69,9 @@ struct ClangIndexImpl
             c_params.push_back(param.c_str());
         }
 
-        auto options = CXTranslationUnit_DetailedPreprocessingRecord 
-        // | CXTranslationUnit_SkipFunctionBodies
-        ;
+        auto options = CXTranslationUnit_DetailedPreprocessingRecord
+            // | CXTranslationUnit_SkipFunctionBodies
+            ;
         if (headers.size() == 1)
         {
             m_tu = clang_parseTranslationUnit(m_index, headers[0].c_str(), c_params.data(), params.size(), nullptr, 0,
@@ -96,18 +96,8 @@ struct ClangIndexImpl
     }
 };
 
-ClangIndex::ClangIndex() : m_impl(new ClangIndexImpl)
+std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> Parse(const std::string &header, const std::string &include_dir)
 {
-}
-
-ClangIndex::~ClangIndex()
-{
-    delete m_impl;
-}
-
-bool ClangIndex::Parse(const std::string &header, const std::string &include_dir)
-{
-
     std::string headers[] = {
         header,
     };
@@ -119,19 +109,17 @@ bool ClangIndex::Parse(const std::string &header, const std::string &include_dir
     return Parse(headers, include_dirs, defines);
 }
 
-bool ClangIndex::Parse(tcb::span<std::string> headers, tcb::span<std::string> includes, tcb::span<std::string> defines)
+std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> Parse(tcb::span<std::string> headers, tcb::span<std::string> includes, tcb::span<std::string> defines)
 {
-    if (!m_impl->Parse(headers, includes, defines))
+    ClangIndexImpl impl;
+    if (!impl.Parse(headers, includes, defines))
     {
-        return false;
+        return {};
     }
 
-    auto cursor = m_impl->GetRootCursor();
-
+    auto cursor = impl.GetRootCursor();
     ClangCursorTraverser traverser;
-    traverser.Traverse(cursor);
-
-    return true;
+    return traverser.Traverse(cursor);
 }
 
 } // namespace clalua
