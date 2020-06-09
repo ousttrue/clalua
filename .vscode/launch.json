@@ -5,14 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "d_libclang",
+            "name": "cs_windowskits",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/bin/lua.exe",
             "args": [
-                "scripts/d_libclang.lua",
-                "C:/Program Files/LLVM/include",
-                "${workspaceFolder}/source/libclang",
+                "scripts/cs_windowskits.lua",
+                "${workspaceFolder}/generated",
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

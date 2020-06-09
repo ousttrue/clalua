@@ -1,3 +1,5 @@
+clalua = require "clalua"
+
 function printf(fmt, ...)
     print(string.format(fmt, ...))
 end
@@ -124,7 +126,7 @@ function dirname(src)
     end
     local i = rfind(src, pred)
     if i then
-        return string.sub(src, 1, i-1)
+        return string.sub(src, 1, i - 1)
     end
     return src
 end
@@ -187,8 +189,24 @@ _G['file'] = {
     exists = function(path)
         return lfs.attributes(path) ~= nil
     end,
+    isDir = function(path)
+        local attr = lfs.attributes(path)
+        if not attr then
+            return false
+        end
+        return attr.mode == "directory"
+    end,
     mkdirRecurse = mkdirRecurse,
     rmdirRecurse = function(path)
         return lfs.rmdir(path)
+    end,
+    ls = function(path)
+        local files = {}
+        for file in lfs.dir(path) do
+            if file ~= "." and file ~= ".." then
+                table.insert(files, path .. '/' .. file)
+            end
+        end
+        return files
     end
 }
