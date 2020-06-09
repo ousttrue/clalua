@@ -25,12 +25,12 @@ struct Primitive : public Decl
 
 struct Void : public Primitive
 {
-  private:
+private:
     Void()
     {
     }
 
-  public:
+public:
     static std::shared_ptr<Void> instance()
     {
         static std::shared_ptr<Void> s_instance = std::shared_ptr<Void>(new Void());
@@ -127,6 +127,13 @@ struct UserDecl : public Decl
     UserDecl(uint32_t hash, const std::string_view &path, const uint32_t line, const std::string_view &name)
         : hash(hash), path(path), line(line), name(name)
     {
+        for (auto &c : this->path)
+        {
+            if (c == '\\')
+            {
+                c = (char)'/';
+            }
+        }
     }
 };
 
@@ -187,7 +194,7 @@ struct Namespace : public UserDecl
     using UserDecl::UserDecl;
 
     static std::shared_ptr<Namespace> create(uint32_t hash, const std::string_view &path, const uint32_t line,
-                                            const std::string_view &name)
+                                             const std::string_view &name)
     {
         return std::make_shared<Namespace>(hash, path, line, name);
     }

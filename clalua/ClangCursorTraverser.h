@@ -5,12 +5,8 @@
 
 namespace clalua
 {
-class UserDecl;
 
-class ClangCursorTraverser
-{
-public:
-    std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> Traverse(const CXCursor &cursor);
-};
+struct UserDecl;
+std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> Traverse(const CXCursor &cursor);
 
 } // namespace clalua

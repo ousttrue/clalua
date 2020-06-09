@@ -101,7 +101,7 @@ class ScopedCXString
     ScopedCXString(const ScopedCXString &) = delete;
     ScopedCXString &operator=(const ScopedCXString &) = delete;
 
-  public:
+public:
     ScopedCXString(const CXString &str) : m_str(str)
     {
         m_c_str = clang_getCString(str);
@@ -167,7 +167,7 @@ class ScopedCXTokens
     ScopedCXTokens(const ScopedCXTokens &) = delete;
     ScopedCXTokens &operator=(const ScopedCXTokens &) = delete;
 
-  public:
+public:
     ScopedCXTokens(const CXCursor &cursor)
     {
         auto range = clang_getCursorExtent(cursor);
@@ -245,14 +245,14 @@ auto DWRITE_KEY = "DWRITE_DECLARE_INTERFACE(\"";
 
 class TraverserImpl
 {
-  public:
+public:
     void TraverseChildren(const CXCursor &cursor, const Context &context)
     {
         processChildren(cursor, std::bind(&TraverserImpl::traverse, this, std::placeholders::_1, context));
     }
     std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> m_declMap;
 
-  private:
+private:
     // std::unordered_map<std::string, std::shared_ptr<Source>> m_sourceMap;
 
     // std::shared_ptr<Source> getOrCreateSource(const CXCursor &cursor)
@@ -288,7 +288,8 @@ class TraverserImpl
         m_declMap.insert(std::make_pair(decl->hash, decl));
     }
 
-    template <typename T> std::shared_ptr<T> getDecl(const CXCursor &cursor)
+    template <typename T>
+    std::shared_ptr<T> getDecl(const CXCursor &cursor)
     {
         auto hash = clang_hashCursor(cursor);
         auto found = m_declMap.find(hash);
@@ -392,12 +393,14 @@ class TraverserImpl
                 switch (child.kind)
                 {
                 case CXCursor_StructDecl:
-                case CXCursor_UnionDecl: {
+                case CXCursor_UnionDecl:
+                {
                     decl = self->getDecl<StructDecl>(child);
                     return CXChildVisit_Break;
                 }
 
-                case CXCursor_EnumDecl: {
+                case CXCursor_EnumDecl:
+                {
                     decl = self->getDecl<EnumDecl>(child);
                     return CXChildVisit_Break;
                 }
@@ -423,13 +426,15 @@ class TraverserImpl
                 switch (child.kind)
                 {
 
-                case CXCursor_TypeRef: {
+                case CXCursor_TypeRef:
+                {
                     auto referenced = clang_getCursorReferenced(child);
                     decl = self->getDecl<UserDecl>(referenced);
                     return CXChildVisit_Break;
                 }
 
-                default: {
+                default:
+                {
                     break;
                 }
                 }
@@ -462,7 +467,8 @@ class TraverserImpl
             // parseMacroDefinition(cursor);
             break;
 
-        case CXCursor_MacroExpansion: {
+        case CXCursor_MacroExpansion:
+        {
             ScopedCXString spelling(clang_getCursorSpelling(cursor));
             if (spelling.str_view() == "DEFINE_GUID")
             {
@@ -487,7 +493,8 @@ class TraverserImpl
         }
         break;
 
-        case CXCursor_Namespace: {
+        case CXCursor_Namespace:
+        {
             auto decl = getDecl<Namespace>(cursor);
             if (!decl)
             {
@@ -502,7 +509,8 @@ class TraverserImpl
         }
         break;
 
-        case CXCursor_UnexposedDecl: {
+        case CXCursor_UnexposedDecl:
+        {
             ScopedCXTokens tokens(cursor);
 
             auto child = context.createChild();
@@ -523,7 +531,8 @@ class TraverserImpl
             parseTypedef(cursor);
             break;
 
-        case CXCursor_FunctionDecl: {
+        case CXCursor_FunctionDecl:
+        {
             auto decl = parseFunction(cursor, clang_getCursorResultType(cursor));
             if (decl)
             {
@@ -579,7 +588,8 @@ class TraverserImpl
         processChildren(cursor, [&decl](const CXCursor &child) {
             switch (child.kind)
             {
-            case CXCursor_EnumConstantDecl: {
+            case CXCursor_EnumConstantDecl:
+            {
                 ScopedCXString childName(clang_getCursorSpelling(child));
                 auto childValue = clang_getEnumConstantDeclUnsignedValue(child);
                 decl->values.emplace_back(
@@ -625,7 +635,8 @@ class TraverserImpl
             case CXCursor_WarnUnusedResultAttr:
                 break;
 
-            case CXCursor_ParmDecl: {
+            case CXCursor_ParmDecl:
+            {
                 // debug
                 // {
                 //     if (childName == "sourceRectangle")
@@ -651,7 +662,8 @@ class TraverserImpl
                 decl->dllExport = true;
                 break;
 
-            case CXCursor_UnexposedAttr: {
+            case CXCursor_UnexposedAttr:
+            {
             }
             break;
 
@@ -723,7 +735,8 @@ class TraverserImpl
     {
         switch (child.kind)
         {
-        case CXCursor_FieldDecl: {
+        case CXCursor_FieldDecl:
+        {
             ScopedCXString fieldName(clang_getCursorSpelling(child));
             auto fieldOffset = clang_Cursor_getOffsetOfField(child);
             auto fieldDecl = typeToDecl(child);
@@ -745,7 +758,8 @@ class TraverserImpl
             // }
             break;
 
-        case CXCursor_CXXMethod: {
+        case CXCursor_CXXMethod:
+        {
             auto method = parseFunction(child, clang_getCursorResultType(child));
             if (!method->hasBody)
             {
@@ -807,7 +821,8 @@ class TraverserImpl
         case CXCursor_CXXAccessSpecifier:
             break;
 
-        case CXCursor_CXXBaseSpecifier: {
+        case CXCursor_CXXBaseSpecifier:
+        {
             // Decl referenced = getReferenceType(child);
             // while (true)
             // {
@@ -859,7 +874,7 @@ class TraverserImpl
     }
 };
 
-std::unordered_map<uint32_t, std::shared_ptr<UserDecl>>  ClangCursorTraverser::Traverse(const CXCursor &cursor)
+std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> Traverse(const CXCursor &cursor)
 {
     TraverserImpl impl;
     impl.TraverseChildren(cursor, {});

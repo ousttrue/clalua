@@ -116,6 +116,19 @@ function basename(src)
     return src
 end
 
+function dirname(src)
+    local function pred(c)
+        if c == "/" or c == "\\" then
+            return true
+        end
+    end
+    local i = rfind(src, pred)
+    if i then
+        return string.sub(src, 1, i-1)
+    end
+    return src
+end
+
 function isFirstAlpha(src)
     return string.match(src, "^%a")
 end

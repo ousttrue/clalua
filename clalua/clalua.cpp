@@ -1,6 +1,7 @@
 #include "clalua.h"
 #include "ClangIndex.h"
 #include "ClangCursorTraverser.h"
+#include "ClangDeclProcessor.h"
 #include <plog/Appenders/ConsoleAppender.h>
 #include <plog/Log.h>
 #include <string>
@@ -102,6 +103,32 @@ struct Lua
     }
 };
 
+struct Source
+{
+    std::string Path;
+    std::vector<std::shared_ptr<clalua::UserDecl>> Declarations;
+};
+using SourcePtr = std::shared_ptr<Source>;
+
+static void BackslashToSlash(std::string &src)
+{
+    for (auto &c : src)
+    {
+        if (c == '\\')
+        {
+            c = (char)'/';
+        }
+    }
+}
+
+static void BackslashStoSlash(std::vector<std::string> &srcs)
+{
+    for (auto &src : srcs)
+    {
+        BackslashToSlash(src);
+    }
+}
+
 int CLALUA_parse(lua_State *L)
 {
     // 型情報を集める
@@ -110,14 +137,47 @@ int CLALUA_parse(lua_State *L)
     auto defines = perilune::LuaGetVector<std::string>(L, 3);
     auto externC = perilune::LuaGet<bool>::Get(L, 4);
 
-    auto map = clalua::Parse(headers, includes, defines);
-    if(map.empty())
+    std::unordered_map<uint32_t, std::shared_ptr<clalua::UserDecl>> map = clalua::Parse(headers, includes, defines);
+    if (map.empty())
     {
         return 0;
     }
 
-    //
+    clalua::ClangDeclProcessor processor;
+    for (auto [id, decl] : map)
+    {
+        auto found = std::find(headers.begin(), headers.end(), decl->path);
+        if (found != headers.end())
+        {
+            processor.AddDecl(decl, {});
+        }
+    }
+
+    // for (auto [key, value] : processor.SourceMap)
+    // {
+    //     std::cout << key << ": " << value->Decls.size();
+    // }
+
     lua_newtable(L);
+    // for (auto [path, source] : sources)
+    // {
+    //     lua_pushstring(L, path.c_str());
+    //     // perilune::LuaPush<std::shared_ptr<Source>>::Push(L, source);
+    //     // lua_pushstring(L, value);
+
+    //     {
+    //         lua_newtable(L);
+    //         int i = 1;
+    //         for (auto decl : source->Declarations)
+    //         {
+    //             lua_pushstring(L, decl->name.c_str());
+    //             lua_rawseti(L, -2, i++);
+    //         }
+    //     }
+
+    //     lua_settable(L, -3);
+    // }
+
     return 1;
 }
 
@@ -127,6 +187,8 @@ int luaopen_clalua(lua_State *L)
 
     lua_pushcfunction(L, CLALUA_parse);
     lua_setfield(L, -2, "parse");
+
+    // type
 
     return 1;
 }

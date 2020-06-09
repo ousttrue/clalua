@@ -3,6 +3,7 @@ add_library(${TARGET_NAME} SHARED
     clalua.cpp
     ClangIndex.cpp
     ClangCursorTraverser.cpp
+    ClangDeclProcessor.cpp
     )
 target_include_directories(${TARGET_NAME} PRIVATE
     ${EXTERNAL_DIR}/span/include

@@ -96,19 +96,6 @@ private:
     }
 };
 
-std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> Parse(const std::string &header, const std::string &include_dir)
-{
-    std::string headers[] = {
-        header,
-    };
-    std::string include_dirs[] = {
-        include_dir,
-    };
-    std::vector<std::string> defines;
-
-    return Parse(headers, include_dirs, defines);
-}
-
 std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> Parse(tcb::span<std::string> headers, tcb::span<std::string> includes, tcb::span<std::string> defines)
 {
     ClangIndexImpl impl;
@@ -118,8 +105,7 @@ std::unordered_map<uint32_t, std::shared_ptr<UserDecl>> Parse(tcb::span<std::str
     }
 
     auto cursor = impl.GetRootCursor();
-    ClangCursorTraverser traverser;
-    return traverser.Traverse(cursor);
+    return Traverse(cursor);
 }
 
 } // namespace clalua
