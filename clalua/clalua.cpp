@@ -153,30 +153,25 @@ int CLALUA_parse(lua_State *L)
         }
     }
 
-    // for (auto [key, value] : processor.SourceMap)
-    // {
-    //     std::cout << key << ": " << value->Decls.size();
-    // }
-
     lua_newtable(L);
-    // for (auto [path, source] : sources)
-    // {
-    //     lua_pushstring(L, path.c_str());
-    //     // perilune::LuaPush<std::shared_ptr<Source>>::Push(L, source);
-    //     // lua_pushstring(L, value);
 
-    //     {
-    //         lua_newtable(L);
-    //         int i = 1;
-    //         for (auto decl : source->Declarations)
-    //         {
-    //             lua_pushstring(L, decl->name.c_str());
-    //             lua_rawseti(L, -2, i++);
-    //         }
-    //     }
+    for (auto [key, value] : processor.SourceMap)
+    {
+        std::cout << key << ": " << value->Decls.size();
+        lua_pushstring(L, key.c_str());
 
-    //     lua_settable(L, -3);
-    // }
+        {
+            lua_newtable(L);
+            int i = 1;
+            for (auto decl : value->Decls)
+            {
+                lua_pushstring(L, decl->name.c_str());
+                lua_rawseti(L, -2, i++);
+            }
+        }
+
+        lua_settable(L, -3);
+    }
 
     return 1;
 }
