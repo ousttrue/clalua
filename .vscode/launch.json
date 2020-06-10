@@ -5,6 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "lrdb",
+            "request": "attach",
+            "name": "attach",
+            "host": "localhost",
+            "port": 21110,
+            "sourceRoot": "${workspaceFolder}",
+            "stopOnEntry": true,
+            // "preLaunchTask": "launch"
+        },
+        {
             "name": "cs_windowskits",
             "type": "cppvsdbg",
             "request": "launch",
@@ -27,7 +37,7 @@
                 {
                     "name": "LUA_CPATH",
                     "value": "${workspaceFolder}\\build\\Debug\\bin\\?.dll"
-                } 
+                }
             ],
             "externalConsole": false
         }

@@ -16,3 +16,6 @@
 [submodule "_external/luafilesystem"]
 	path = _external/luafilesystem
 	url = https://github.com/keplerproject/luafilesystem.git
+[submodule "_external/LRDB"]
+	path = _external/LRDB
+	url = https://github.com/satoren/LRDB.git
