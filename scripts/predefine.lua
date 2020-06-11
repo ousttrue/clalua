@@ -211,5 +211,6 @@ _G['file'] = {
             end
         end
         return files
-    end
+    end,
+    basename = basename,
 }

@@ -57,7 +57,7 @@ local headers = {
 }
 for i, f in ipairs(headers) do
     local header = string.format("%s/%s", src, f)
-    print(header)
+    -- print(header)
     headers[i] = header
 end
 local sourceMap =

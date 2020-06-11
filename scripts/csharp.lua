@@ -94,7 +94,7 @@ local function CSEscapeName(src, i)
 end
 
 local function isInterface(decl)
-    decl = decl.typedefSource
+    -- decl = decl.typedefSource
 
     if decl.class ~= 'Struct' then
         return false
@@ -350,7 +350,7 @@ local function CSEnumDecl(sourceDir, decl, option, indent)
     end
 
     if option.omitEnumPrefix then
-        decl.omit()
+        -- TODO:
     end
 
     local path = string.format('%s/%s.cs', sourceDir, decl.name)

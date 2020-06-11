@@ -7,7 +7,7 @@ namespace clalua
 {
 
 struct Decl
-{
+{  
     virtual ~Decl()
     {
     }
@@ -88,11 +88,12 @@ struct LongDouble : public Primitive
 
 struct Pointer : public Decl
 {
-    std::shared_ptr<Decl> pointee;
+    TypeReference pointee;
 
     Pointer(const std::shared_ptr<Decl> &decl, bool isConst = false)
     {
-        pointee = decl;
+        pointee.decl = decl;
+        pointee.isConst = isConst;
     }
 };
 

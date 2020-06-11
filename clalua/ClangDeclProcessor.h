@@ -2,6 +2,7 @@
 #include "ClangDecl.h"
 #include <memory>
 #include <unordered_map>
+#include <filesystem>
 
 namespace clalua
 {
@@ -9,6 +10,11 @@ namespace clalua
 struct Source
 {
     std::string Path;
+    std::string Name() const
+    {
+        return std::filesystem::path(Path).stem().string();
+    }
+
     std::vector<std::string> Imports;
     std::vector<std::shared_ptr<UserDecl>> Decls;
 
