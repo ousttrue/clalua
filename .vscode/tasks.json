@@ -8,7 +8,8 @@
             "type": "shell",
             "command": "${workspaceFolder}/build/Debug/bin/lua.exe",
             "args": [
-                "scripts/cs_windowskits.lua",
+                "scripts/cs_libclang.lua",
+                "C:/Program Files/LLVM/include",
                 "${workspaceFolder}/generated"
             ],
             "options": {

@@ -319,8 +319,9 @@ local function CSTypedefDecl(f, t)
     local dst, option = CSType(t.ref.type)
     if not dst then
         -- ありえない？
-        error('not implemented')
-        return
+        -- error('not implemented')
+        -- return
+        dst = t.name
     end
 
     if t.ref.type.class == 'Pointer' and t.ref.type.ref.type.class == 'Function' then

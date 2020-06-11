@@ -15,12 +15,13 @@
             // "preLaunchTask": "launch"
         },
         {
-            "name": "cs_windowskits",
+            "name": "cs_libclang",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/bin/lua.exe",
             "args": [
-                "scripts/cs_windowskits.lua",
+                "scripts/cs_libclang.lua",
+                "C:/Program Files/LLVM/include",
                 "${workspaceFolder}/generated",
             ],
             "stopAtEntry": false,
