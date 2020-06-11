@@ -15,8 +15,8 @@
                 "cwd": "${workspaceFolder}",
                 "env": {
                     "PATH": "${env:PATH};C:/Program Files/LLVM/bin",
-                    "LUA_PATH": "${workspaceFolder}\\scripts\\?.lua",
-                    "LUA_CPATH": "${workspaceFolder}\\build\\Debug\\bin\\?.dll"
+                    "LUA_PATH": "scripts\\?.lua",
+                    "LUA_CPATH": "build\\Debug\\bin\\?.dll"
                 }
             },
             "problemMatcher": []

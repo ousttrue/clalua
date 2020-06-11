@@ -11,7 +11,7 @@
             "host": "localhost",
             "port": 21110,
             "sourceRoot": "${workspaceFolder}",
-            "stopOnEntry": true,
+            "stopOnEntry": false,
             // "preLaunchTask": "launch"
         },
         {
